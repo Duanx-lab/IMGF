@@ -5,7 +5,7 @@ import sys, os, warnings
 warnings.filterwarnings("ignore")
 
 BASE_DIR = r"d:\integrAO\vs"
-INTEGRAO_DIR = os.path.join(BASE_DIR, "IMGF")
+INTEGRAO_DIR = os.path.join(BASE_DIR, "IntegrAO")
 sys.path.insert(0, INTEGRAO_DIR)
 sys.path.insert(0, BASE_DIR)
 
@@ -78,7 +78,7 @@ def split_three_omics_missing(data_list, ratio=0.8, seed=42):
     return datasets, union_to_orig
 
 
-def imgf_cluster(datasets, n_clusters, neighbor_size=20, fusing_iteration=20):
+def integrao_cluster(datasets, n_clusters, neighbor_size=20, fusing_iteration=20):
     (dicts_common, dicts_commonIndex, dict_sampleToIndexs,
      dicts_unique, original_order, dict_original_order) = data_indexing(datasets)
 
@@ -149,7 +149,7 @@ def imgf_cluster(datasets, n_clusters, neighbor_size=20, fusing_iteration=20):
 
 def main():
     print("=" * 60)
-    print("CRC IMGF K=4 标签导出")
+    print("CRC IntegrAO K=4 标签导出")
     print("=" * 60)
 
     K = 4
@@ -163,8 +163,8 @@ def main():
     datasets, union_to_orig = split_three_omics_missing(
         data_filtered, ratio=0.8, seed=42)
 
-    print(f"\n>>> IMGF 聚类 K={K}...")
-    labels, union_samples = imgf_cluster(datasets, n_clusters=K)
+    print(f"\n>>> IntegrAO 聚类 K={K}...")
+    labels, union_samples = integrao_cluster(datasets, n_clusters=K)
 
     # 原始索引 -> 聚类标签
     orig_to_cluster = {}

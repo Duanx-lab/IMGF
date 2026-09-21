@@ -1,5 +1,5 @@
 """
-提取 IMGF 聚类标签，保存为 CSV 供 R 脚本使用。
+提取 IntegrAO 聚类标签，保存为 CSV 供 R 脚本使用。
 用于 CRC 数据。K 值通过命令行参数指定。
 
 用法: python crc_extract_labels.py K
@@ -11,7 +11,7 @@ import sys, os, warnings
 warnings.filterwarnings("ignore")
 
 BASE_DIR = r"d:\integrAO\vs"
-INTEGRAO_DIR = os.path.join(BASE_DIR, "IMGF")
+INTEGRAO_DIR = os.path.join(BASE_DIR, "IntegrAO")
 sys.path.insert(0, INTEGRAO_DIR)
 sys.path.insert(0, BASE_DIR)
 
@@ -91,7 +91,7 @@ def split_three_omics_missing(data_list, ratio=0.8, seed=42):
     return datasets, union_to_orig, stats
 
 
-def imgf_cluster(datasets, n_clusters, neighbor_size=20, fusing_iteration=20):
+def integrao_cluster(datasets, n_clusters, neighbor_size=20, fusing_iteration=20):
     (dicts_common, dicts_commonIndex, dict_sampleToIndexs,
      dicts_unique, original_order, dict_original_order) = data_indexing(datasets)
 
@@ -169,7 +169,7 @@ def main():
     print(f"K = {K}")
 
     print("=" * 60)
-    print(f"提取 IMGF K={K} 聚类标签 — CRC")
+    print(f"提取 IntegrAO K={K} 聚类标签 — CRC")
     print("=" * 60)
 
     ge, me, mi, survival = load_crc_data()
@@ -182,8 +182,8 @@ def main():
     datasets, union_to_orig, stats = split_three_omics_missing(
         data_filtered, ratio=0.8, seed=42)
 
-    print(f"\n>>> IMGF 聚类 K={K}...")
-    labels, embedding, union_samples = imgf_cluster(
+    print(f"\n>>> IntegrAO 聚类 K={K}...")
+    labels, embedding, union_samples = integrao_cluster(
         datasets, n_clusters=K)
 
     # 构建 原始索引 -> 聚类标签 映射

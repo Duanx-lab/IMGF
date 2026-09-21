@@ -1,5 +1,5 @@
 """
-提取 IMGF K=5 聚类标签，保存为 CSV 供 R 脚本使用。
+提取 IntegrAO K=5 聚类标签，保存为 CSV 供 R 脚本使用。
 """
 import numpy as np
 import pandas as pd
@@ -7,7 +7,7 @@ import sys, os, warnings
 warnings.filterwarnings("ignore")
 
 BASE_DIR = r"d:\integrAO\vs"
-INTEGRAO_DIR = os.path.join(BASE_DIR, "IMGF")
+INTEGRAO_DIR = os.path.join(BASE_DIR, "IntegrAO")
 sys.path.insert(0, INTEGRAO_DIR)
 sys.path.insert(0, BASE_DIR)
 
@@ -89,7 +89,7 @@ def split_three_omics_missing(data_list, survival, ratio=0.8, seed=42):
     return datasets, union_to_orig, survival, stats
 
 
-def imgf_cluster(datasets, n_clusters, neighbor_size=20, fusing_iteration=20):
+def integrao_cluster(datasets, n_clusters, neighbor_size=20, fusing_iteration=20):
     (dicts_common, dicts_commonIndex, dict_sampleToIndexs,
      dicts_unique, original_order, dict_original_order) = data_indexing(datasets)
 
@@ -160,7 +160,7 @@ def imgf_cluster(datasets, n_clusters, neighbor_size=20, fusing_iteration=20):
 
 def main():
     print("=" * 60)
-    print("提取 IMGF K=5 聚类标签")
+    print("提取 IntegrAO K=5 聚类标签")
     print("=" * 60)
 
     ge, me, mi, survival = load_brca_data()
@@ -173,8 +173,8 @@ def main():
     datasets, union_to_orig, surv, stats = split_three_omics_missing(
         data_filtered, survival, ratio=0.8, seed=42)
 
-    print("\n>>> IMGF 聚类 K=5...")
-    labels, embedding, union_samples = imgf_cluster(
+    print("\n>>> IntegrAO 聚类 K=5...")
+    labels, embedding, union_samples = integrao_cluster(
         datasets, n_clusters=5)
 
     # 构建 原始索引 -> 聚类标签 映射
