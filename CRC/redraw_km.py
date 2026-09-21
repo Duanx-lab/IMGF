@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""用正确时间（月份，不除30.44）重画 CRC KM 曲线"""
+"""重画 CRC KM 曲线"""
 import pandas as pd
 import numpy as np
 import matplotlib
@@ -9,7 +9,7 @@ from lifelines import KaplanMeierFitter
 from lifelines.statistics import multivariate_logrank_test
 import os
 
-crc_dir = r"D:\integrAO\vs\CRC"
+crc_dir = os.path.dirname(os.path.abspath(__file__))
 
 # 加载生存数据
 survival = pd.read_csv(os.path.join(crc_dir, "crc_survival.csv"))

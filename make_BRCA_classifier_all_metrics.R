@@ -1,10 +1,9 @@
 # ============================================================
-# Rebuild BRCA classifier all-metrics bar plot
+# Build BRCA classifier all-metrics bar plot
 # Input: classifier_results.csv
 # Output: BRCA/BRCA_classifier_all_metrics.png/pdf
 # ============================================================
 
-setwd("D:/integrAO/vs")
 
 options(repos = c(CRAN = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/"))
 

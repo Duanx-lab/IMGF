@@ -51,7 +51,7 @@ cat(sprintf("  表达矩阵: %d 基因 x %d 样本 (去重后)\n", nrow(data), n
 # 2. 加载 K=4 聚类标签
 # ============================================================
 cat("\n>>> 加载 K=4 聚类标签...\n")
-labels_df <- read.csv("D:/integrAO/vs/CRC/crc_k4_labels.csv")
+labels_df <- read.csv("CRC/crc_k4_labels.csv")
 
 # 建立 原始索引 -> 聚类标签 映射
 idx_to_cluster <- setNames(labels_df$cluster, labels_df$orig_index)
@@ -88,8 +88,8 @@ for (cl in cluster_ids) {
 # 4. 加载 genesets（保留 SYMBOL，不转 ENTREZID）
 # ============================================================
 cat("\n>>> 加载基因集...\n")
-nf <- max(count.fields("D:/integrAO/vs/CRC/genesets.gmt", sep = "\t"))
-geneset_raw <- read.table("D:/integrAO/vs/CRC/genesets.gmt",
+nf <- max(count.fields("CRC/genesets.gmt", sep = "\t"))
+geneset_raw <- read.table("CRC/genesets.gmt",
                           stringsAsFactors = FALSE, fill = TRUE, col.names = 1:nf)
 geneset <- lapply(1:nrow(geneset_raw), function(i) {
   gs1 <- geneset_raw[i, , drop = TRUE] %>% unlist
@@ -122,10 +122,10 @@ for (cn in names(limma_results)) {
   GSEA.rslt[[cn]] <- fgsea_res
 }
 
-save(GSEA.rslt, file = "D:/integrAO/vs/CRC/crc_data_gsea_K4.RData")
+save(GSEA.rslt, file = "CRC/crc_data_gsea_K4.RData")
 
 # 保存 fgsea 通路名
-writeLines(GSEA.rslt[[1]]$pathway, "D:/integrAO/vs/CRC/crc_fgsea_pathways.txt")
+writeLines(GSEA.rslt[[1]]$pathway, "CRC/crc_fgsea_pathways.txt")
 cat(sprintf("  已保存通路名 (%d 条)\n", length(GSEA.rslt[[1]]$pathway)))
 
 # ============================================================
@@ -158,7 +158,7 @@ colnames(heat.mat) <- cluster_names
 heat.mat[heat.mat <= -2] <- -2
 heat.mat[heat.mat >= 2] <- 2
 
-save(heat.mat, file = "D:/integrAO/vs/CRC/crc_pathway_heat_K4.RData")
+save(heat.mat, file = "CRC/crc_pathway_heat_K4.RData")
 
 # ============================================================
 # 7. 提取各维度通路
@@ -286,7 +286,7 @@ Metabolism.p <- do.call(pheatmap, c(list(mat = Metabolism.heat,
 # ============================================================
 cat("\n>>> 输出组合图...\n")
 
-out_dir <- "D:/integrAO/vs/CRC"
+out_dir <- "CRC"
 save(Signature.p, Pathways.p, Immune.p, Metabolism.p, Estimate.p,
      file = file.path(out_dir, "crc_Figure_K4.RData"))
 

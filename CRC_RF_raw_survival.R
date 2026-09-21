@@ -1,11 +1,10 @@
 # ============================================================
 # CRC RF classifier survival curve on GSE39582 raw data
-# Data: D:/integrAO/vs/CRC_GSE39582.raw.RData
+# Data: CRC_GSE39582.raw.RData
 # Classifier labels: GSE39582_Rfcms$RF.predictedCMS
 # Survival: GSE39582_info$os.delay + GSE39582_info$os.event
 # ============================================================
 
-setwd("D:/integrAO/vs")
 rm(list = ls())
 
 options(repos = c(CRAN = "https://mirrors.tuna.tsinghua.edu.cn/CRAN/"))
@@ -18,7 +17,7 @@ for (pkg in cran_pkgs) {
 
 set.seed(42)
 
-RAW_FILE <- "D:/integrAO/vs/CRC_GSE39582.raw.RData"
+RAW_FILE <- "CRC_GSE39582.raw.RData"
 OUT_PNG <- "CRC/CRC_RF_GSE39582_OS_KM.png"
 OUT_PDF <- "CRC/CRC_RF_GSE39582_OS_KM.pdf"
 OUT_CSV <- "CRC/CRC_RF_GSE39582_predictions_survival.csv"

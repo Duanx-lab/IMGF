@@ -45,7 +45,7 @@ cat(sprintf("  表达矩阵: %d 基因 x %d 样本 (去重后)\n", nrow(data), n
 # 2. 加载 K=5 聚类标签
 # ============================================================
 cat("\n>>> 加载 K=5 聚类标签...\n")
-labels_df <- read.csv("D:/integrAO/vs/BRCA/brca_k5_labels.csv")
+labels_df <- read.csv("BRCA/brca_k5_labels.csv")
 
 # 建立 原始索引 -> 聚类标签 映射
 idx_to_cluster <- setNames(labels_df$cluster, labels_df$orig_index)
@@ -82,8 +82,8 @@ for (cl in cluster_ids) {
 # 4. 加载 genesets（保留 SYMBOL，不转 ENTREZID）
 # ============================================================
 cat("\n>>> 加载基因集...\n")
-nf <- max(count.fields("D:/integrAO/vs/BRCA/genesets.gmt", sep = "\t"))
-geneset_raw <- read.table("D:/integrAO/vs/BRCA/genesets.gmt",
+nf <- max(count.fields("BRCA/genesets.gmt", sep = "\t"))
+geneset_raw <- read.table("BRCA/genesets.gmt",
                           stringsAsFactors = FALSE, fill = TRUE, col.names = 1:nf)
 geneset <- lapply(1:nrow(geneset_raw), function(i) {
   gs1 <- geneset_raw[i, , drop = TRUE] %>% unlist
@@ -118,10 +118,10 @@ for (cn in names(limma_results)) {
   GSEA.rslt[[cn]] <- fgsea_res
 }
 
-save(GSEA.rslt, file = "D:/integrAO/vs/BRCA/data.gsea.K5.RData")
+save(GSEA.rslt, file = "BRCA/data.gsea.K5.RData")
 
 # 保存 fgsea 通路名到文本文件以便调试
-writeLines(GSEA.rslt[[1]]$pathway, "D:/integrAO/vs/BRCA/fgsea_pathways.txt")
+writeLines(GSEA.rslt[[1]]$pathway, "BRCA/fgsea_pathways.txt")
 cat(sprintf("  已保存通路名到 fgsea_pathways.txt (%d 条)\n", length(GSEA.rslt[[1]]$pathway)))
 
 # 检查 Immune 通路
@@ -174,7 +174,7 @@ colnames(heat.mat) <- cluster_names
 heat.mat[heat.mat <= -2] <- -2
 heat.mat[heat.mat >= 2] <- 2
 
-save(heat.mat, file = "D:/integrAO/vs/BRCA/pathway.heat.K5.RData")
+save(heat.mat, file = "BRCA/pathway.heat.K5.RData")
 
 # ============================================================
 # 7. 提取各维度通路
@@ -304,23 +304,23 @@ Metabolism.p <- do.call(pheatmap, c(list(mat = Metabolism.heat,
 cat("\n>>> 输出组合图...\n")
 
 save(Signature.p, Pathways.p, Immune.p, Metabolism.p, Estimate.p,
-     file = "D:/integrAO/vs/BRCA/Figure.K5.RData")
+     file = "BRCA/Figure.K5.RData")
 
-pdf("D:/integrAO/vs/BRCA/pathway_K5.pdf", height = 12, width = 10)
+pdf("BRCA/pathway_K5.pdf", height = 12, width = 10)
 plot_grid(Signature.p$gtable, Pathways.p$gtable, Estimate.p$gtable,
           Metabolism.p$gtable, Immune.p$gtable, labels = "auto",
           ncol = 2, rel_heights = c(3, 3, 2.2),
           align = "v")
 dev.off()
-cat("  PDF 已保存: D:/integrAO/vs/BRCA/pathway_K5.pdf\n")
+cat("  PDF 已保存: BRCA/pathway_K5.pdf\n")
 
-png("D:/integrAO/vs/BRCA/pathway_K5.png", height = 12, width = 10,
+png("BRCA/pathway_K5.png", height = 12, width = 10,
     units = "in", res = 200)
 plot_grid(Signature.p$gtable, Pathways.p$gtable, Estimate.p$gtable,
           Metabolism.p$gtable, Immune.p$gtable, labels = "auto",
           ncol = 2, rel_heights = c(3, 3, 2.2),
           align = "v")
 dev.off()
-cat("  PNG 已保存: D:/integrAO/vs/BRCA/pathway_K5.png\n")
+cat("  PNG 已保存: BRCA/pathway_K5.png\n")
 
 cat("\n===== GSEA K=5 分析完成! =====\n")

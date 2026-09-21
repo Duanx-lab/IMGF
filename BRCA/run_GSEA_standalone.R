@@ -7,7 +7,7 @@
 SCRIPT_DIR <- normalizePath(dirname(sub("--file=", "",
     commandArgs(trailingOnly = FALSE)[grep("--file=", commandArgs(trailingOnly = FALSE))])))
 if (is.na(SCRIPT_DIR) || length(SCRIPT_DIR) == 0) {
-  SCRIPT_DIR <- normalizePath("D:/integrAO/vs/R")
+  SCRIPT_DIR <- normalizePath(".")
 }
 setwd(SCRIPT_DIR)
 cat("工作目录:", SCRIPT_DIR, "\n")
