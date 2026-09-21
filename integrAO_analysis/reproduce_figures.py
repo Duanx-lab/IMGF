@@ -5,9 +5,6 @@
 图 B (1子图): 三组学都缺失 → NMI vs overlap ratio
 图 C (3子图): 单组学原始特征 UMAP（无融合）
 图 E (1子图): 多组学联合集成嵌入 UMAP
-
-关于 log10: 融合矩阵 P 值在 [1e-7, 0.5]，log10(P) 全部为负。
-Python 实现直接对相似度矩阵做特征分解 → 不需要 log10。
 """
 import matplotlib
 matplotlib.use("Agg")
@@ -280,7 +277,7 @@ def _scaling_normalized_array(W, ratio):
 
 
 def run_fusion_fast(datasets, neighbor_size=20, fusing_iteration=20):
-    """NumPy implementation of the IntegrAO diffusion used for visualization."""
+    """NumPy 实现的 diffusion 融合。"""
     (dicts_common, _, dict_sample_to_indices,
      _, original_order, _) = data_indexing(datasets)
 
@@ -725,7 +722,7 @@ def plot_single_omics_umap(datasets_scenario, truelabel, omics_idx, title, save_
 
 
 # ============================================================
-# 7. Post-integration UMAP（图 E）
+# 7. Post-integration UMAP
 # ============================================================
 def plot_post_integration_umap(datasets, union_labels, fused_networks, dict_si,
                                 save_path, n_dm=5):
@@ -908,49 +905,7 @@ def plot_post_integration_umap(datasets, union_labels, fused_networks, dict_si,
 
 
 # ============================================================
-# 8. NMI 曲线绘图
-# ============================================================
-def plot_nmi_curves(results_dict, scenario_name, save_path):
-    """单条 NMI 曲线（含 NEMO/MSNE 对比）"""
-    fig, ax = plt.subplots(figsize=(8, 5.5))
-    ratios = results_dict["ratio"]
-    ax.plot(ratios, results_dict["IMGF"], "o-", color="#E53935",
-           linewidth=2.5, markersize=8, label="IMGF")
-    ax.plot(ratios, results_dict["IntegrAO"], "o--", color="#8E24AA",
-           linewidth=2.5, markersize=8, label="IntegrAO")
-    ax.plot(ratios, results_dict["KMeans(on intact feature)"], "^--", color="#43A047",
-           linewidth=2.5, markersize=8, label="KMeans (on intact feature)")
-    if results_dict.get("NEMO"):
-        ax.plot(ratios, results_dict["NEMO"], "s-.", color="#1E88E5",
-               linewidth=2.5, markersize=8, label="NEMO")
-    if results_dict.get("MSNE"):
-        ax.plot(ratios, results_dict["MSNE"], "D:", color="#FB8C00",
-               linewidth=2.5, markersize=8, label="MSNE")
-
-    ax.set_xlabel("Overlap Ratio", fontsize=12)
-    ax.set_ylabel("NMI", fontsize=12)
-    ax.set_title(scenario_name, fontsize=12, fontweight="bold")
-    ax.legend(fontsize=8, loc="lower right")
-    ax.set_xlim(0.0, 1.0)
-    ax.set_xticks(np.arange(0.0, 1.01, 0.1))
-    if "Methyl" in scenario_name or scenario_name.startswith("B"):
-        ax.set_ylim(0.0, 1.0)
-        ax.set_yticks(np.arange(0.0, 1.01, 0.2))
-    else:
-        ax.set_ylim(0.6, 1.0)
-        ax.set_yticks(np.arange(0.60, 1.01, 0.05))
-    ax.grid(True, alpha=0.3)
-    from matplotlib.ticker import FormatStrFormatter
-    ax.yaxis.set_major_formatter(FormatStrFormatter("%.2f"))
-    plt.tight_layout()
-    plt.savefig(save_path, dpi=200, bbox_inches="tight")
-    plt.savefig(save_path.replace(".png", ".pdf"), dpi=200, bbox_inches="tight")
-    plt.close()
-    print(f"  NMI曲线已保存: {save_path}")
-
-
-# ============================================================
-# 9. 组合大图
+# 8. 组合大图
 # ============================================================
 def plot_combined_figure(all_results, expr, protein, methyl, truelabel, n_clusters):
     """
@@ -1215,7 +1170,7 @@ def plot_combined_figure(all_results, expr, protein, methyl, truelabel, n_cluste
 
 
 # ============================================================
-# 9.4 最终组合大图（上排 NMI，下排 UMAP）
+# 9. 最终组合大图（上排 NMI，下排 UMAP）
 # ============================================================
 def plot_final_figure(all_results, expr, protein, methyl, truelabel, n_clusters):
     """生成 2x4 组合大图：上排 NMI vs overlap ratio，下排 UMAP。"""
@@ -1459,7 +1414,7 @@ def plot_final_figure(all_results, expr, protein, methyl, truelabel, n_clusters)
 
 
 # ============================================================
-# 9.5 运行时间对比
+# 10. 运行时间对比
 # ============================================================
 def plot_timing_comparison(all_timing):
     """运行时间对比：柱状图（平均耗时，对数刻度）+ ratio 曲线。"""
@@ -1518,7 +1473,7 @@ def plot_timing_comparison(all_timing):
 
 
 # ============================================================
-# 10. 主入口
+# 11. 主入口
 # ============================================================
 def redraw_combined_figure(force_cache=False):
     """仅重绘组合大图，NMI数值从CSV读取，单组学UMAP和融合复用缓存。"""
@@ -1610,9 +1565,7 @@ def main():
     all_results, all_timing, _ = run_full_experiment(
         ratios=[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9], n_runs=1)
 
-    # ---- 2. (已禁用) 单独保存各 NMI 子图，只保留 2x2 大图 ----
-
-    # ---- 3. 单组学 UMAP（用 split_for_umap_vis: 每视图 350+50）----
+    # ---- 2. 单组学 UMAP（用 split_for_umap_vis: 每视图 350+50）----
     print("\n>>> 单组学 UMAP（预融合）...")
     ds_umap, _, _ = split_for_umap_vis(data_all, truelabel, ratio=0.7, seed=42)
     plot_single_omics_umap(ds_umap, truelabel, 1, "Protein expression (raw)",
@@ -1622,14 +1575,14 @@ def main():
     plot_single_omics_umap(ds_umap, truelabel, 2, "DNA methylation (raw)",
                           _out("umap_single_methyl.png"), n_clusters)
 
-    # ---- 4. Post-integration UMAP ----
+    # ---- 3. Post-integration UMAP ----
     print("\n>>> Post-integration UMAP...")
     datasets_umap, _, _ = split_for_umap_vis(data_all, truelabel, ratio=0.7, seed=42)
     fused, dict_si = run_fusion(datasets_umap)
     plot_post_integration_umap(datasets_umap, None, fused, dict_si,
                                _out("overlap_structure.png"))
 
-    # ---- 5. NMI 折线图 + UMAP 散点图 (两张独立大图) ----
+    # ---- 4. NMI 折线图 + UMAP 散点图 (两张独立大图) ----
     print("\n>>> NMI 折线图 + UMAP 散点图...")
     plot_combined_figure(all_results, expr, protein, methyl, truelabel, n_clusters)
 
@@ -1660,7 +1613,6 @@ def main():
     print(f"  {OUT_DIR}/umap_overview.png     — UMAP 散点图 (2x2)")
     print(f"  {OUT_DIR}/overlap_structure.png — Post-integration UMAP")
     print(f"  {OUT_DIR}/umap_single_*.png     — 单组学UMAP (3张)")
-    print(f"  {OUT_DIR}/nmi_*.png             — NMI曲线 (4张)")
     print(f"  {OUT_DIR}/nmi_results.csv       — 数值结果")
     print(f"  {OUT_DIR}/timing_results.csv    — 各方法耗时")
     print(f"  {OUT_DIR}/timing_bar.png        — 耗时柱状图")
