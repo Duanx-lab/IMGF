@@ -1,0 +1,24 @@
+# 大型数据文件（原始数据，不托管在 Git）
+*.RData
+*.raw.RData
+*.tif
+CRC/crc_mRNA.csv
+CRC/crc_methyl.csv
+CRC/crc_miRNA.csv
+brca_clin_all.csv
+
+# 图片产物
+*.png
+*.pdf
+*.svg
+
+# Python
+__pycache__/
+*.pyc
+
+# R
+.Rhistory
+
+# 临时目录与文件
+.tmp_*/
+*.zip
