@@ -1,9 +1,9 @@
 """
-BRCA 三组学 missing 数据分析：IntegrAO 聚类 + 生存分析。
+BRCA 三组学 missing 数据分析：IMGF 聚类 + 生存分析。
 
 数据: mRNA (GE) + DNA 甲基化 (ME) + miRNA (MI), 628 样本
 场景: overlap ratio = 0.8，三组学均有部分缺失
-方法: IntegrAO 融合 → Diffusion Map → KMeans → Kaplan-Meier 生存分析
+方法: IMGF 融合 → Diffusion Map → KMeans → Kaplan-Meier 生存分析
 """
 import matplotlib
 matplotlib.use("Agg")
@@ -14,7 +14,7 @@ import sys, os, warnings
 warnings.filterwarnings("ignore")
 
 BASE_DIR = r"d:\integrAO\vs"
-INTEGRAO_DIR = os.path.join(BASE_DIR, "IntegrAO")
+INTEGRAO_DIR = os.path.join(BASE_DIR, "IMGF")
 sys.path.insert(0, INTEGRAO_DIR)
 sys.path.insert(0, BASE_DIR)
 
@@ -127,10 +127,10 @@ def split_three_omics_missing(data_list, survival, ratio=0.8, seed=42):
 
 
 # ============================================================
-# 4. IntegrAO 融合 + Diffusion Map + KMeans
+# 4. IMGF 融合 + Diffusion Map + KMeans
 # ============================================================
-def integrao_cluster(datasets, n_clusters, neighbor_size=20, fusing_iteration=20):
-    """IntegrAO 融合 → DM → KMeans，返回聚类标签（按 union 样本顺序）"""
+def imgf_cluster(datasets, n_clusters, neighbor_size=20, fusing_iteration=20):
+    """IMGF 融合 → DM → KMeans，返回聚类标签（按 union 样本顺序）"""
     (dicts_common, dicts_commonIndex, dict_sampleToIndexs,
      dicts_unique, original_order, dict_original_order) = data_indexing(datasets)
 
@@ -296,7 +296,7 @@ def survival_analysis(cluster_labels, union_samples, union_to_orig, survival,
 
     ax.set_xlabel("Time (months)", fontsize=13)
     ax.set_ylabel("Survival Probability", fontsize=13)
-    ax.set_title(f"BRCA — IntegrAO Clustering Survival Analysis (K={n_clusters}, overlap=0.8)",
+    ax.set_title(f"BRCA — IMGF Clustering Survival Analysis (K={n_clusters}, overlap=0.8)",
                 fontsize=14, fontweight="bold")
     ax.legend(fontsize=10, loc="lower left")
     ax.set_ylim(0, 1.05)
@@ -362,7 +362,7 @@ def survival_analysis(cluster_labels, union_samples, union_to_orig, survival,
 # ============================================================
 def main():
     print("=" * 60)
-    print("BRCA 三组学 IntegrAO 聚类 + 生存分析")
+    print("BRCA 三组学 IMGF 聚类 + 生存分析")
     print("=" * 60)
 
     # 加载数据
@@ -386,7 +386,7 @@ def main():
     print(f">>> K={n_clusters} 聚类 + 生存分析")
     print("=" * 60)
 
-    labels, embedding, union_samples = integrao_cluster(
+    labels, embedding, union_samples = imgf_cluster(
         datasets, n_clusters=n_clusters)
 
     save_path = os.path.join(BASE_DIR, "BRCA", f"BRCA_KM_K{n_clusters}.png")
