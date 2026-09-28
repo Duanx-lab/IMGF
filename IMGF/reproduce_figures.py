@@ -475,34 +475,6 @@ def run_nmi_for_scenario(datasets, union_labels, n_clusters, neighbor_size=20,
     return nmi
 
 
-def run_kmeans_on_intact(datasets, union_labels, n_clusters, intact_idx=None):
-    """
-    K-means on intact feature（论文基线）。
-    对指定视图做 K-means，标签按样本名对齐 union_labels。
-    intact_idx=None 时取三个单组学中的最佳 NMI。
-    """
-    def _nmi_for_view(view, ul):
-        """对单个视图做 K-means 并计算 NMI，标签按样本名对齐"""
-        km = KMeans(n_clusters=n_clusters, random_state=42, n_init="auto")
-        pred = km.fit_predict(view.values)
-        # 按样本名对齐：找到 view 和 union_labels 共有的样本
-        common_names = [n for n in view.index if n in ul.index]
-        if len(common_names) == 0:
-            return 0.0
-        true = ul[common_names].values
-        pred_aligned = pred[[list(view.index).index(n) for n in common_names]]
-        return normalized_mutual_info_score(true, pred_aligned)
-
-    if intact_idx is not None:
-        return _nmi_for_view(datasets[intact_idx], union_labels)
-    else:
-        best = 0.0
-        for view in datasets:
-            nmi = _nmi_for_view(view, union_labels)
-            best = max(best, nmi)
-        return best
-
-
 def run_integrao_gnn(datasets, union_labels, n_clusters,
                      neighbor_size=20, fusing_iteration=30,
                      embedding_dims=64, alighment_epochs=1000):
@@ -532,7 +504,7 @@ def run_integrao_gnn(datasets, union_labels, n_clusters,
     return normalized_mutual_info_score(true_arr, labels)
 
 
-def _run_scenario_methods(datasets, labels, n_clusters, complete_idx):
+def _run_scenario_methods(datasets, labels, n_clusters):
     """跑一个场景的全部方法，返回 (results_dict, timing_dict)，每个值已计时。"""
     methods = {}
     timing = {}
@@ -545,11 +517,6 @@ def _run_scenario_methods(datasets, labels, n_clusters, complete_idx):
     methods["IntegrAO"] = run_integrao_gnn(datasets, labels, n_clusters,
                                            alighment_epochs=INTEGRAO_EPOCHS)
     timing["IntegrAO"] = time.time() - t0
-
-    t0 = time.time()
-    methods["KMeans(on intact feature)"] = run_kmeans_on_intact(
-        datasets, labels, n_clusters, intact_idx=complete_idx)
-    timing["KMeans(on intact feature)"] = time.time() - t0
 
     t0 = time.time()
     methods["NEMO"] = nemo_nmi(datasets, labels, n_clusters)
@@ -573,7 +540,7 @@ def run_full_experiment(ratios=None, n_runs=1):
     data_all = [expr, protein, methyl]
     omics_names = ["mRNA", "Protein", "Methyl"]
 
-    METHOD_KEYS = ["IMGF", "IntegrAO", "KMeans(on intact feature)", "NEMO", "MSNE"]
+    METHOD_KEYS = ["IMGF", "IntegrAO", "NEMO", "MSNE"]
     all_results = {}
     all_timing = {}
 
@@ -591,7 +558,7 @@ def run_full_experiment(ratios=None, n_runs=1):
     timing_B = _empty_bucket()
     for ratio in ratios:
         datasets, tl, stats = split_all_three_missing(data_all, truelabel, ratio, seed=42)
-        methods, timing = _run_scenario_methods(datasets, tl, n_clusters, complete_idx=None)
+        methods, timing = _run_scenario_methods(datasets, tl, n_clusters)
         results_B["ratio"].append(ratio)
         timing_B["ratio"].append(ratio)
         for k in METHOD_KEYS:
@@ -613,7 +580,7 @@ def run_full_experiment(ratios=None, n_runs=1):
         for ratio in ratios:
             datasets, ul, stats = split_one_complete_two_missing(
                 data_all, truelabel, complete_idx, ratio, seed=42)
-            methods, t = _run_scenario_methods(datasets, ul, n_clusters, complete_idx=complete_idx)
+            methods, t = _run_scenario_methods(datasets, ul, n_clusters)
             results["ratio"].append(ratio)
             timing["ratio"].append(ratio)
             for k in METHOD_KEYS:
@@ -936,8 +903,6 @@ def plot_combined_figure(all_results, expr, protein, methyl, truelabel, n_cluste
                linewidth=2.5, markersize=7, label="IMGF")
         ax.plot(ratios, r["IntegrAO"], "o--", color="#8E24AA",
                linewidth=2.5, markersize=7, label="IntegrAO")
-        ax.plot(ratios, r["KMeans(on intact feature)"], "^--", color="#43A047",
-               linewidth=2.5, markersize=7, label="KMeans (on intact feature)")
         if r.get("NEMO"):
             ax.plot(ratios, r["NEMO"], "s-.", color="#1E88E5",
                    linewidth=2.5, markersize=7, label="NEMO")
@@ -1202,8 +1167,6 @@ def plot_final_figure(all_results, expr, protein, methyl, truelabel, n_clusters)
         r = all_results[key]
         ax.plot(ratios, r["IMGF"], "o-", color="#E53935", lw=2.5, ms=7, label="IMGF")
         ax.plot(ratios, r["IntegrAO"], "o--", color="#8E24AA", lw=2.5, ms=7, label="IntegrAO")
-        ax.plot(ratios, r["KMeans(on intact feature)"], "^--", color="#43A047",
-                lw=2.5, ms=7, label="KMeans (on intact feature)")
         if r.get("NEMO"):
             ax.plot(ratios, r["NEMO"], "s-.", color="#1E88E5", lw=2.5, ms=7, label="NEMO")
         if r.get("MSNE"):
@@ -1215,7 +1178,7 @@ def plot_final_figure(all_results, expr, protein, methyl, truelabel, n_clusters)
         ax.set_xlim(0.0, 1.0)
         ax.set_xticks(np.arange(0.0, 1.01, 0.2))
         # 自适应 y 轴，让曲线拉开
-        vals = [v for k in ["IMGF", "IntegrAO", "KMeans(on intact feature)", "NEMO", "MSNE"]
+        vals = [v for k in ["IMGF", "IntegrAO", "NEMO", "MSNE"]
                 for v in r.get(k, []) if not pd.isna(v)]
         lo = min(vals); hi = max(vals)
         pad = (hi - lo) * 0.18 + 0.02
@@ -1418,11 +1381,11 @@ def plot_final_figure(all_results, expr, protein, methyl, truelabel, n_clusters)
 # ============================================================
 def plot_timing_comparison(all_timing):
     """运行时间对比：柱状图（平均耗时，对数刻度）+ ratio 曲线。"""
-    METHOD_KEYS = ["IMGF", "IntegrAO", "KMeans(on intact feature)", "NEMO", "MSNE"]
+    METHOD_KEYS = ["IMGF", "IntegrAO", "NEMO", "MSNE"]
     SHORT = {"IMGF": "IMGF", "IntegrAO": "IntegrAO",
-             "KMeans(on intact feature)": "KMeans", "NEMO": "NEMO", "MSNE": "MSNE"}
+             "NEMO": "NEMO", "MSNE": "MSNE"}
     COLORS = {"IMGF": "#E53935", "IntegrAO": "#8E24AA",
-              "KMeans(on intact feature)": "#43A047", "NEMO": "#1E88E5", "MSNE": "#FB8C00"}
+              "NEMO": "#1E88E5", "MSNE": "#FB8C00"}
 
     records = []
     for scenario, tdict in all_timing.items():
@@ -1493,7 +1456,6 @@ def redraw_combined_figure(force_cache=False):
             "ratio": df_csv["ratio"].tolist(),
             "IMGF": df_csv[f"{key_prefix}_IMGF"].tolist(),
             "IntegrAO": df_csv[f"{key_prefix}_IntegrAO"].tolist(),
-            "KMeans(on intact feature)": df_csv[f"{key_prefix}_KMeans"].tolist(),
             "NEMO": df_csv[f"{key_prefix}_NEMO"].tolist(),
             "MSNE": df_csv[f"{key_prefix}_MSNE"].tolist(),
         }
@@ -1592,7 +1554,6 @@ def main():
     for key in all_results:
         df[f"{key}_IMGF"] = all_results[key]["IMGF"]
         df[f"{key}_IntegrAO"] = all_results[key]["IntegrAO"]
-        df[f"{key}_KMeans"] = all_results[key]["KMeans(on intact feature)"]
         df[f"{key}_NEMO"] = all_results[key].get("NEMO", [np.nan]*9)
         df[f"{key}_MSNE"] = all_results[key].get("MSNE", [np.nan]*9)
     df.to_csv(_out("nmi_results.csv"), index=False)
@@ -1600,7 +1561,7 @@ def main():
     # ---- 保存耗时 + 画时间对比图 ----
     tdf = pd.DataFrame({"ratio": ratio_vals})
     for key in all_timing:
-        for m in ["IMGF", "IntegrAO", "KMeans(on intact feature)", "NEMO", "MSNE"]:
+        for m in ["IMGF", "IntegrAO", "NEMO", "MSNE"]:
             tdf[f"{key}_{m}"] = all_timing[key][m]
     tdf.to_csv(_out("timing_results.csv"), index=False)
     print("\n>>> 时间对比图...")
