@@ -12,8 +12,8 @@ Pipeline: **network diffusion fusion → Diffusion Map → KMeans clustering**.
 Rscript generate_intersim.R <delta> <outdir> [seed] [p.DMP]
 ```
 
-- `delta`: signal-to-noise ratio (default ~0.9, smaller = harder)
-- `p.DMP`: differential feature proportion (default 0.2, smaller = sparser signal)
+- `delta`: signal-to-noise ratio (default ~0.9)
+- `p.DMP`: differential feature proportion (default 0.2)
 
 ### 2. Run the benchmark and generate figures
 
