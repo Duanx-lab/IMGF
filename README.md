@@ -25,7 +25,7 @@ python reproduce_figures.py
 
 | Variable | Meaning | Default |
 |----------|---------|---------|
-| `OMICS_DATA_DIR` | Directory with `omics1/2/3.txt` and `clusters.txt` | IntegrAO built-in data |
+| `OMICS_DATA_DIR` | Directory with `omics1/2/3.txt` and `clusters.txt` | output of `generate_intersim.R` |
 | `OUT_TAG` | Output filename suffix | empty |
 | `INTEGRAO_EPOCHS` | IntegrAO GNN training epochs | 1000 |
 | `IMGF_NDM` | IMGF Diffusion Map dimensions | 3 |

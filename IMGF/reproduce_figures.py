@@ -14,10 +14,10 @@ import pandas as pd
 import sys, os, warnings, time
 warnings.filterwarnings("ignore")
 
-BASE_DIR = r"d:\integrAO\vs"
-INTEGRAO_DIR = os.path.join(BASE_DIR, "IntegrAO")
 OUT_DIR = os.path.dirname(os.path.abspath(__file__))
-OMICS_DATA_DIR = os.environ.get("OMICS_DATA_DIR", os.path.join(INTEGRAO_DIR, "data", "omics"))
+BASE_DIR = os.path.dirname(OUT_DIR)
+INTEGRAO_DIR = os.path.join(BASE_DIR, "IntegrAO")
+OMICS_DATA_DIR = os.environ.get("OMICS_DATA_DIR", os.path.join(OUT_DIR, "data"))
 OUT_TAG = os.environ.get("OUT_TAG", "")
 INTEGRAO_EPOCHS = int(os.environ.get("INTEGRAO_EPOCHS", "1000"))
 IMGF_NDM = int(os.environ.get("IMGF_NDM", "3"))
